@@ -1,0 +1,78 @@
+﻿Database Migration: KelolaTeam
+1. Tabel users
+Menyimpan informasi dasar pengguna dan autentikasi.
+
+
+* id (Primary Key)
+* name (string)
+* email (string, unique)
+* password (string)
+* avatar_color (string) - Untuk visualisasi inisial (misal: av-a, av-b)
+* remember_token
+* timestamps
+2. Tabel teams
+Menyimpan data tim yang dibuat.
+
+
+* id (Primary Key)
+* name (string) - Contoh: Tim Alpha
+* category (string) - Contoh: Pengembangan Produk
+* status (enum: 'baru', 'aktif', 'arsip')
+* capacity_percentage (integer) - Kalkulasi kesibukan tim
+* timestamps
+3. Tabel team_members
+Pivot table untuk menghubungkan pengguna ke tim dengan role spesifik.
+
+
+* id (Primary Key)
+* team_id (Foreign Key -> teams)
+* user_id (Foreign Key -> users)
+* role (enum: 'leader', 'member')
+* status_online (enum: 'online', 'away', 'offline')
+* timestamps
+4. Tabel tasks
+Menyimpan detail tugas dan statusnya dalam kanban.
+
+
+* id (Primary Key)
+* team_id (Foreign Key -> teams)
+* user_id (Foreign Key -> users) - Assignee
+* title (string)
+* description (text)
+* due_date (date)
+* priority (enum: 'urgent', 'normal', 'low')
+* status (enum: 'todo', 'doing', 'review', 'approved')
+* progress (integer) - 0 hingga 100%
+* file_path (string, nullable) - Path untuk file yang diunggah
+* timestamps
+5. Tabel attendances
+Menyimpan data kehadiran berbasis geolokasi.
+
+
+* id (Primary Key)
+* user_id (Foreign Key -> users)
+* date (date)
+* clock_in (time)
+* location_lat (decimal)
+* location_long (decimal)
+* status (enum: 'hadir', 'lambat', 'izin', 'alpha')
+* remarks (string, nullable) - Alasan izin/sakit
+* is_within_radius (boolean)
+* timestamps
+6. Tabel ai_insights
+Menyimpan ringkasan dan rekomendasi yang dihasilkan sistem.
+
+
+* id (Primary Key)
+* target_id (integer) - Bisa team_id atau user_id
+* type (enum: 'summary', 'recommendation', 'performance_score')
+* content (text)
+* score (integer, nullable) - Skor performa (0-100)
+* timestamps
+7. Tabel notifications
+* id (Primary Key)
+* user_id (Foreign Key -> users)
+* type (string) - Contoh: 'task_new', 'attendance_alert'
+* data (json) - Isi pesan notifikasi
+* read_at (timestamp, nullable)
+* timestamps
