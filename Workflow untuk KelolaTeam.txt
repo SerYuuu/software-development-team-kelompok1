@@ -1,0 +1,29 @@
+﻿Workflow untuk KelolaTeam
+Fitur Utama KelolaTeam
+1. Manajemen Tim & Anggota
+• Pembuatan Tim: Fitur untuk membuat tim baru dengan kategori tertentu (contoh: Pengembangan Produk, Desain).
+• Daftar Anggota: Tabel yang menampilkan nama, role (Leader/Member), status online, dan jumlah tugas aktif
+• Kapasitas Tim: Visualisasi kesibukan tim menggunakan progress bar untuk mendeteksi overload.
+
+2. Manajemen Tugas (Kanban & Kontrol)
+• Board Kanban: Status tugas dibagi menjadi: Belum Dikerjakan, Sedang Dikerjakan, dan Review/Selesai.
+• Prioritas & Deadline: Penandaan tugas (Urgent/Normal) dan tampilan tanggal jatuh tempo.
+• Sistem Approval: Fitur bagi admin/leader untuk menyetujui (Approve) atau meminta revisi atas tugas yang selesai.
+• Upload Hasil: Tombol bagi anggota untuk mengerjakan dan mengunggah hasil tugas langsung di platform.
+
+3. Absensi Cerdas (Smart Attend)
+• Geofencing: Verifikasi lokasi absensi berdasarkan radius (contoh: 100m dari titik koordinat).
+• Deteksi Keterlambatan: Pencatatan otomatis waktu masuk dan penandaan jika terlambat.
+• Pengajuan Izin: Fitur bagi anggota untuk mengajukan izin (contoh: izin sakit) yang terintegrasi ke notifikasi sistem.
+
+4. Pelaporan & Analisis
+• Dashboard Metrik: Statistik total anggota, tugas aktif, persentase kehadiran hari ini, dan tugas selesai.
+• Export Laporan: Opsi untuk mengunduh laporan bulanan dalam format PDF atau Excel.
+
+5. AI Insight (Beta)
+• Auto Summarize: Ringkasan otomatis mengenai beban kerja tim dan risiko keterlambatan.
+• Rekomendasi AI: Saran  tugas dan evaluasi kebijakan absensi.
+• Skor Performa: Penilaian otomatis terhadap produktivitas anggota.
+
+6. Sistem Notifikasi
+• Real-time Alerts: Notifikasi untuk tugas baru, status kehadiran anggota, dan pengajuan izin.
