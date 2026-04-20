@@ -1,0 +1,79 @@
+1. Tabel Users
+Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->string('avatar-color');
+            $table->rememberToken();
+            $table->timestamps();
+        });
+
+2. Tabel Teams
+Schema::create('table_teams', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('category');
+            $table->enum('status', ['baru','aktif','arsip'])->default('baru');
+            $table->integer('capacity_percentage')->default(0);
+            $table->timestamps();
+        });
+
+3. Tabel Team Members
+Schema::create('table_team_members', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('team_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->enum('role', ['leader', 'member']);
+            $table->enum('status_online', ['online', 'away', 'offline']);
+            $table->timestamps();
+        });
+
+4. Tabel Tasks
+Schema::create('table_tasks', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('team_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); //assignee
+            $table->string('title');
+            $table->text('description')->nullable();
+            $table->date('due_date');
+            $table->enum('priority', ['urgent', 'normal', 'low'])->default('normal');
+            $table->enum('status', ['todo', 'doing', 'review', 'approved'])->default('todo');
+            $table->integer('progress')->default(0);
+            $table->string('file_path')->nullable();
+            $table->timestamps();
+        });
+
+5. Tabel Attendances
+Schema::create('table_attendances', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->date('date');
+            $table->time('clock_in');
+            $table->decimal('location_lat', 10, 8); //8 digit angka belakang koma
+            $table->decimal('location_long', 11, 8);
+            $table->enum('status', ['hadir', 'lambat', 'izin', 'alpha']);
+            $table->string('remarks')->nullable();
+            $table->boolean('is_within_radius')->default(true);
+            $table->timestamps();
+        });
+
+6. Tabel Ai Insight
+Schema::create('table_ai_insights', function (Blueprint $table) {
+            $table->id();
+            $table->morphs('target');
+            $table->enum('type', ['summary', 'recommendation', 'performance_score']);
+            $table->text('content');
+            $table->integer('score')->nullable();
+            $table->timestamps();
+        });
+
+7. Tabel Notifications
+Schema::create('table_notifications', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('type');
+            $table->json('data');
+            $table->timestamp('read_at')->nullable();
+            $table->timestamps();
+        });
