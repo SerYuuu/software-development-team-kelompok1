@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('team_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); //assignee
+            $table->foreignId('team_id')->constrained('teams')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); //assignee
             $table->string('title');
             $table->text('description')->nullable();
             $table->date('due_date');
@@ -22,6 +22,7 @@ return new class extends Migration
             $table->enum('status', ['todo', 'doing', 'review', 'approved'])->default('todo');
             $table->integer('progress')->default(0);
             $table->string('file_path')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

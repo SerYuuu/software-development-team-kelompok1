@@ -8,7 +8,6 @@ class Insight extends Model
 {
     protected $fillable = [
         'target_id',
-        'target_type',
         'type',
         'content',
         'score'

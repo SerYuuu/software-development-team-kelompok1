@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('category');
             $table->enum('status', ['baru','aktif','arsip'])->default('baru');
             $table->integer('capacity_percentage')->default(0);
+            $table->softDeletes();
             $table->timestamps();
         });
     }

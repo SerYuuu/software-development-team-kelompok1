@@ -15,11 +15,11 @@ return new class extends Migration
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->date('date');
-            $table->time('clock_in');
-            $table->decimal('location_lat', 10, 8); //8 digit angka belakang koma
-            $table->decimal('location_long', 11, 8);
+            $table->time('clock_in')->nullable();
+            $table->decimal('location_lat', 10, 8)->nullable(); //8 digit angka belakang koma
+            $table->decimal('location_long', 11, 8)->nullable();
             $table->enum('status', ['hadir', 'lambat', 'izin', 'alpha']);
             $table->string('remarks')->nullable();
             $table->boolean('is_within_radius')->default(true);
