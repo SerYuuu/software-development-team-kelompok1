@@ -3,21 +3,23 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticable;
+use Laravel\Sanctum\HasApiTokens;
 
-class User extends Model
+class User extends Authenticable
 {
-    use HasFactory, SoftDeletes;
+    use HasApiTokens, HasFactory, SoftDeletes;
 
     protected $fillable = [
         'name',
         'email',
         'password',
-        'avatar-color'
+        'avatar_color'
     ];
     protected $hidden = [
-        'password'
+        'password',
+        'remember_token',
     ];
 
     public function teams() {
