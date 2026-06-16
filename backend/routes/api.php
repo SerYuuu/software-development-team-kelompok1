@@ -9,6 +9,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceSessionController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\InsightController;
+use App\Http\Controllers\AttendanceSessionController;
 
 // 1. RUTE PUBLIK (Bisa diakses tanpa token)
 Route::post('/login',    [AuthController::class, 'login']);
