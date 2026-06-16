@@ -1,153 +1,176 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../store/authStore'
+import { toast } from 'react-hot-toast'
 
 export default function LoginPage() {
-  const [tab, setTab] = useState('masuk') // 'masuk' | 'daftar'
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [tab, setTab] = useState('masuk')
+  const [form, setForm] = useState({ name: '', email: '', password: '', password_confirmation: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-  const login = useAuthStore(s => s.login)
+  const { login, register } = useAuthStore()
 
   const handleLogin = async () => {
-    if (!email || !password) { setError('Email dan password wajib diisi'); return }
+    if (!form.email || !form.password) { 
+      setError('Email dan password wajib diisi')
+      return 
+    }
     setLoading(true)
     setError('')
-
-    // Simulasi delay seperti API call
-    await new Promise(r => setTimeout(r, 600))
-
-    const success = login(email, password)
-    if (success) {
+    try {
+      await login(form.email, form.password)
+      toast.success('Login berhasil!')
       navigate('/dashboard')
-    } else {
-      setError('Email atau password salah')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Email atau password salah')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') handleLogin()
+  const handleRegister = async () => {
+    if (!form.name || !form.email || !form.password) {
+      setError('Nama, email, dan password wajib diisi')
+      return
+    }
+    if (form.password !== form.password_confirmation) {
+      setError('Konfirmasi password tidak cocok')
+      return
+    }
+    setLoading(true)
+    setError('')
+    try {
+      // Menyesuaikan payload dengan validasi AuthController di Laravel
+      await register(form.name, form.email, form.password, form.password_confirmation)
+      toast.success('Registrasi berhasil! Silakan masuk.')
+      setTab('masuk')
+      setForm({ name: '', email: '', password: '', password_confirmation: '' })
+    } catch (err) {
+      // Tambahkan console log ini untuk melihat detail error di Inspect Element > Console
+      console.log("Detail Error:", err.response?.data?.errors); 
+      
+      // Jika err.response.data.errors ada, ambil pesan pertama
+      const serverErrors = err.response?.data?.errors;
+      const errorMsg = serverErrors 
+        ? Object.values(serverErrors)[0][0] 
+        : (err.response?.data?.message || 'Registrasi gagal, periksa data kembali');
+        
+      setError(errorMsg);
+    } finally {
+      setLoading(false)
+    }
+    
+    
   }
+
+  const handleKeyDown = (e) => { 
+    if (e.key === 'Enter') {
+      tab === 'masuk' ? handleLogin() : handleRegister()
+    } 
+  }
+  
+  const set = (field) => (e) => setForm(prev => ({ ...prev, [field]: e.target.value }))
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="w-full max-w-[380px]">
 
         {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="w-14 h-14 bg-black rounded-2xl mx-auto mb-4 flex items-center justify-center">
-            <div className="w-4 h-4 bg-white rounded-md" />
-          </div>
-          <h1 className="text-2xl font-semibold tracking-tight">KelolaTeam</h1>
-          <p className="text-sm text-gray-500 mt-1">Platform tim & kelas generasi berikutnya</p>
+        <div className="text-center mb-6">
+          <div className="w-14 h-14 mx-auto mb-3 flex items-center justify-center">
+            <img 
+              src="/favicon.svg" 
+              alt="Logo" 
+              className="w-full h-full object-contain" 
+            />
+        </div>
+          <h1 className="text-xl font-bold tracking-tight text-gray-900">KelolaTeam</h1>
+          <p className="text-xs text-black-400 mt-1">Platform manajemen tim & tugas internal</p>
         </div>
 
         {/* Card */}
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-          {/* Tab */}
-          <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-5">
-            <button
-              onClick={() => setTab('masuk')}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'masuk' ? 'bg-white shadow-sm text-black' : 'text-gray-400'}`}
+        <div className="bg-blue-300 border border-gray-100 rounded-2xl p-5 shadow-sm">
+          
+          {/* Tab Switcher */}
+          <div className="flex bg-black p-1 rounded-xl mb-5">
+            <button 
+              onClick={() => { setTab('masuk'); setError('') }}
+              className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all
+                ${tab === 'masuk' ? 'bg-indigo-500 text-white shadow-sm' : 'text-white hover:text-gray-700'}`}
             >
               Masuk
             </button>
-            <button
-              onClick={() => setTab('daftar')}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'daftar' ? 'bg-white shadow-sm text-black' : 'text-gray-400'}`}
+            <button 
+              onClick={() => { setTab('daftar'); setError('') }}
+              className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all
+                ${tab === 'daftar' ? 'bg-indigo-500 text-white shadow-sm' : 'text-white hover:text-gray-700'}`}
             >
               Daftar
             </button>
           </div>
 
-          {tab === 'masuk' ? (
-            <div className="flex flex-col gap-4">
+          {/* Form Fields */}
+          <div className="flex flex-col gap-3.5">
+            {tab === 'daftar' && (
               <div>
-                <label className="text-xs text-gray-500 mb-1.5 block font-medium">Email</label>
-                <input
-                  type="email"
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-black focus:ring-2 focus:ring-black/5 transition-all"
-                  placeholder="nama@email.com"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                />
+                <label className="text-xs text-black mb-1 block font-medium">Nama Lengkap</label>
+                <input type="text"
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-black transition-all"
+                  placeholder="John Doe"
+                  value={form.name} onChange={set('name')} onKeyDown={handleKeyDown} />
               </div>
+            )}
+
+            <div>
+              <label className="text-xs text-black mb-1 block font-medium">Email</label>
+              <input type="email"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-black transition-all"
+                placeholder="nama@email.com"
+                value={form.email} onChange={set('email')} />
+            </div>
+
+            <div>
+              <div className="flex justify-between mb-1">
+                <label className="text-xs text-text-black font-medium">Password</label>
+              </div>
+              <input type="password"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-black transition-all"
+                placeholder="••••••••"
+                value={form.password} onChange={set('password')} onKeyDown={handleKeyDown} />
+                <p className="text-[10px] text-text-black mt-1">Minimal 8 karakter</p>
+            </div>
+
+            {tab === 'daftar' && (
               <div>
-                <div className="flex justify-between mb-1.5">
-                  <label className="text-xs text-gray-500 font-medium">Password</label>
-                  <span className="text-xs text-gray-400 cursor-pointer hover:text-black transition-colors">Lupa password?</span>
-                </div>
-                <input
-                  type="password"
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-black focus:ring-2 focus:ring-black/5 transition-all"
+                <label className="text-xs text-black mb-1 block font-medium">Konfirmasi Password</label>
+                <input type="password"
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-black transition-all"
                   placeholder="••••••••"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                />
+                  value={form.password_confirmation} onChange={set('password_confirmation')} onKeyDown={handleKeyDown} />
               </div>
+            )}
 
-              {error && (
-                <div className="bg-red-50 border border-red-100 rounded-xl px-3 py-2">
-                  <p className="text-xs text-red-600">{error}</p>
-                </div>
-              )}
+            {error && (
+              <div className="bg-red-50 border border-red-100 rounded-xl px-3 py-2">
+                <p className="text-xs text-red-600">{error}</p>
+              </div>
+            )}
 
-              <button
-                onClick={handleLogin}
-                disabled={loading}
-                className="w-full bg-black text-white rounded-xl py-2.5 text-sm font-medium hover:bg-gray-800 disabled:opacity-60 transition-all"
-              >
+            {tab === 'masuk' ? (
+              <button onClick={handleLogin} disabled={loading}
+                className="w-full bg-black text-white rounded-xl py-2.5 text-sm font-medium hover:bg-gray-800 disabled:opacity-60 transition-all mt-1">
                 {loading ? 'Masuk...' : 'Masuk'}
               </button>
-
-              <div className="flex items-center gap-2">
-                <div className="flex-1 h-px bg-gray-200" />
-                <span className="text-xs text-gray-400">atau</span>
-                <div className="flex-1 h-px bg-gray-200" />
-              </div>
-
-              <button className="w-full border border-gray-200 rounded-xl py-2.5 text-sm hover:bg-gray-50 transition-colors text-gray-700">
-                Lanjut dengan Google
+            ) : (
+              <button onClick={handleRegister} disabled={loading}
+                className="w-full bg-black text-white rounded-xl py-2.5 text-sm font-medium hover:bg-gray-800 disabled:opacity-60 transition-all mt-1">
+                {loading ? 'Mendaftar...' : 'Buat Akun'}
               </button>
-
-              {/* Hint akun demo */}
-              <div className="bg-gray-50 rounded-xl px-3 py-2.5">
-                <p className="text-xs text-gray-400 font-medium mb-1">Akun Demo:</p>
-                <p className="text-xs text-gray-500">Email: <span className="font-medium text-gray-700">admin@kelolateam.com</span></p>
-                <p className="text-xs text-gray-500">Password: <span className="font-medium text-gray-700">password</span></p>
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-4">
-              <div>
-                <label className="text-xs text-gray-500 mb-1.5 block font-medium">Nama Lengkap</label>
-                <input className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-black transition-all" placeholder="Nama kamu" />
-              </div>
-              <div>
-                <label className="text-xs text-gray-500 mb-1.5 block font-medium">Email</label>
-                <input type="email" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-black transition-all" placeholder="nama@email.com" />
-              </div>
-              <div>
-                <label className="text-xs text-gray-500 mb-1.5 block font-medium">Password</label>
-                <input type="password" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-black transition-all" placeholder="••••••••" />
-              </div>
-              <button className="w-full bg-black text-white rounded-xl py-2.5 text-sm font-medium hover:bg-gray-800 transition-all">
-                Daftar Sekarang
-              </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
-        {/* Info notif */}
-        <div className="mt-3 bg-white border border-gray-200 rounded-xl px-4 py-3 flex items-center gap-2.5 shadow-sm">
-          <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0" />
-          <span className="text-xs text-gray-500">2 notifikasi absen & tugas menunggu</span>
-        </div>
       </div>
     </div>
   )

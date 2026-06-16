@@ -1,27 +1,55 @@
 import { create } from 'zustand'
-import { dummyUser } from '../data/dummy'
+import authService from '../services/authService'
 
-const useAuthStore = create((set) => ({
+const useAuthStore = create((set, get) => ({
   user: null,
-  token: localStorage.getItem('token') || null,
+  isAuthenticated: false,
+  authLoading: true,
 
-  // Login dengan dummy — ganti dengan API saat BE siap
-  login: (email, password) => {
-    if (email === 'admin@kelolateam.com' && password === 'password') {
-      const token = 'dummy-token-kelolateam'
-      localStorage.setItem('token', token)
-      set({ token, user: dummyUser })
-      return true
+  login: async (email, password) => {
+    const response = await authService.login(email, password)
+    const token = response.data.token
+    const user = response.data.user
+    localStorage.setItem('token', token)
+    set({ user, isAuthenticated: true })
+    return response
+  },
+  register: async (name, email, password, password_confirmation) => {
+    // Pastikan authService punya fungsi register
+    const response = await authService.register(name, email, password, password_confirmation);
+    const token = response.data.token;
+    const user = response.data.user;
+    
+    localStorage.setItem('token', token);
+    set({ user, isAuthenticated: true });
+    return response;
+  },
+  logout: async () => {
+    try {
+      await authService.logout()
+    } catch (e) {}
+    finally {
+      localStorage.removeItem('token')
+      set({ user: null, isAuthenticated: false })
     }
-    return false
   },
 
-  logout: () => {
-    localStorage.removeItem('token')
-    set({ token: null, user: null })
+  fetchMe: async () => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      set({ authLoading: false })
+      return
+    }
+    try {
+      const response = await authService.me()
+      set({ user: response.data, isAuthenticated: true, authLoading: false })
+    } catch (error) {
+      localStorage.removeItem('token')
+      set({ user: null, isAuthenticated: false, authLoading: false })
+    }
   },
 
-  setUser: (user) => set({ user }),
+  getUser: () => get().user,
 }))
 
 export default useAuthStore
