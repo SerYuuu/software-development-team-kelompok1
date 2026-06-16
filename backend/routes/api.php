@@ -7,6 +7,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\InsightController;
+use App\Http\Controllers\AttendanceSessionController;
 
 //publik
 Route::post('/login',    [AuthController::class, 'login']);
@@ -41,4 +42,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('insights/user',          [InsightController::class, 'userInsights']);
     Route::get('insights/team/{teamId}', [InsightController::class, 'teamInsights']);
     Route::post('insights',              [InsightController::class, 'store']);
+
+    // Sesi Absensi
+    Route::get('attendance-sessions/team/{teamId}', [AttendanceSessionController::class, 'index']);
+    Route::post('attendance-sessions',              [AttendanceSessionController::class, 'store']);
+    Route::get('attendance-sessions/{id}',          [AttendanceSessionController::class, 'show']);
+    Route::patch('attendance-sessions/{id}/close',  [AttendanceSessionController::class, 'close']);
 });
